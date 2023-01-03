@@ -21,39 +21,3 @@ fun StartScreen(
     Text(text = "hello world")
 }
 
-
-@Composable
-fun StartScreenPage() {
-    ConstraintLayout(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val (boxGreeting) = createRefs()
-
-        BoxWithConstraints(
-            modifier = Modifier
-                .padding(16.dp)
-                .constrainAs(boxGreeting) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-        ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(text = "Доброе утро, {user}")
-            }
-
-        }
-    }
-}
-
-@Preview
-@Composable
-fun StartScreenPagePreview() {
-    StartScreenPage()
-}

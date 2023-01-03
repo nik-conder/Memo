@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.app.memo.presentation.ui.screens.HomeScreen
 import com.app.memo.presentation.ui.screens.StartScreen
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -23,6 +24,9 @@ fun SetupNavGraph(
     ) {
         composable(route = Screen.StartScreen.route) {
             StartScreen(navController = navController)
+        }
+        composable(route = Screen.HomeScreen.route) {
+            HomeScreen(navController = navController)
         }
     }
 }

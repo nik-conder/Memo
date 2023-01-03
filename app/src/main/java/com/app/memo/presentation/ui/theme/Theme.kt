@@ -10,24 +10,38 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    secondary = Color(0xFFFFC300),
+    background = Color(0xFF003566),
+    surface = Color(0xFFAF3F93),
+    onPrimary = Color(0xFF7FBFFA),
+    onSecondary = Color(0xFF00BCD4),
+    onTertiary = Color(0xFF1C1B1F),
+    onBackground = Color(0xFF777777),
+    onSurface = Color(0xFF1C1B1F),
+    primaryContainer = Color(0xFF00BCD4),
+    secondaryContainer = Color(0xFF00BCD4)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
+    secondary = Color(0xFFFFC300),
+    background = Color(0xFF003566),
+    surface = Color(0xFFFF5722),
+    onPrimary = Color(0xFFECECEC),
+    onSecondary = Color(0xFF00BCD4),
+    onTertiary = Color(0xFF1C1B1F),
+    onBackground = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF1C1B1F),
+    primaryContainer = Color(0xFF00BCD4),
+    secondaryContainer = Color(0xFF00BCD4)
     /* Other default colors to override
-    background = Color(0xFFFFFBFE),
+
     surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -61,7 +75,8 @@ fun MemoAppTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        //colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         typography = Typography,
         content = content
     )
