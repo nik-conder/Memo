@@ -10,5 +10,5 @@ data class Note(
     @ColumnInfo(name = "title") val title: String?,
     @ColumnInfo(name = "text") val text: String?,
     @ColumnInfo(name = "data") val data: String?,
-    @ColumnInfo(name = "tags") val tags: List<Tag>?
+    //@ColumnInfo(name = "tags") val tags: List<Tag>?
 )

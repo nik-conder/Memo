@@ -17,8 +17,7 @@ android {
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "com.app.memo.MyTestRunner"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.app.memo.TestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -94,7 +93,7 @@ dependencies {
 
     // Room
     implementation("androidx.room:room-runtime:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     testImplementation("androidx.room:room-testing:$roomVersion")
     implementation("androidx.room:room-paging:$roomVersion")
@@ -106,7 +105,7 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testCompileOnly("org.mockito:mockito-core:4.10.0")
     androidTestImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
-    implementation("androidx.test:runner:1.5.1")
+    implementation("androidx.test:runner:1.5.2")
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.navigation:navigation-runtime-ktx:2.5.3")
@@ -116,7 +115,7 @@ dependencies {
     // Compose
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha03")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha04")
     implementation("androidx.activity:activity-compose:1.6.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
@@ -129,6 +128,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.44.2")
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
 }
 
 kapt {

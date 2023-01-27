@@ -1,40 +1,157 @@
 package com.app.memo.presentation.ui.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.app.memo.Limits
+import com.app.memo.data.enities.Tag
+import com.app.memo.presentation.events.TagsEvents
+import com.app.memo.presentation.ui.components.TagItem
+import com.app.memo.presentation.ui.components.alertDialogs.AddTagAlertDialog
+import com.app.memo.presentation.viewModels.MainViewModel
 
 @Composable
 fun HomeScreen(
-    navController: NavHostController
-) {
+    navController: NavHostController,
+
+    ) {
     HomeScreenPage()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun HomeScreenPage() {
 
+    val viewModel = hiltViewModel<MainViewModel>()
+    val statesMain = viewModel.statesMain.collectAsState()
+    val openAlertDialogAddTag = statesMain.value.openAlertDialogAddTag
+    var addTagText by remember { mutableStateOf(TextFieldValue("")) }
+    val addTagTextMaxChar = Limits.NUMBER_CHARACTERS_TAG
+    val showKeyboard = remember { mutableStateOf(true) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
 
-    var openAddTag by remember { mutableStateOf(false) }
-    var addTagText by remember { mutableStateOf("") }
+    LaunchedEffect(statesMain) {
+        println(statesMain)
+    }
+
+    if (openAlertDialogAddTag) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onEventTags(TagsEvents.AddTagAlertDialog) },
+
+            ) {
+            Surface(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight(),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Column {
+                        Row {
+                            Text(
+                                text = "Введите название тега, например: \"Работа\", \"Учёба\", \"Хобби\"",
+                                fontSize = 12.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row {
+
+                            OutlinedTextField(
+                                modifier = Modifier.focusRequester(focusRequester),
+                                value = addTagText,
+                                isError = addTagTextMaxChar - addTagText.text.length == 0,
+                                onValueChange = { newText ->
+                                    if (newText.text.length <= addTagTextMaxChar) addTagText =
+                                        newText
+                                },
+                                trailingIcon = {
+                                    AnimatedVisibility(visible = addTagText.text.isNotEmpty()) {
+                                        Icon(
+                                            modifier = Modifier.clickable {
+                                                addTagText = TextFieldValue("")
+                                            },
+                                            imageVector = Icons.Rounded.Clear,
+                                            contentDescription = "Clear"
+                                        )
+                                    }
+                                },
+                                supportingText = {
+                                    Text(
+                                        text = "Осталось: ${addTagTextMaxChar - addTagText.text.length} символов",
+                                        color = if ((addTagTextMaxChar - addTagText.text.length) <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onTertiary,
+                                        fontSize = 12.sp
+                                    )
+                                },
+                                keyboardOptions = KeyboardOptions.Default
+                            )
+
+                            LaunchedEffect(openAlertDialogAddTag) {
+                                focusRequester.requestFocus()
+                                keyboard?.show()
+                            }
+
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = {
+                                viewModel.onEventTags(TagsEvents.AddTag(text = addTagText.text))
+                                viewModel.onEventTags(TagsEvents.AddTagAlertDialog)
+                                addTagText = TextFieldValue("")
+                            },
+                            enabled = if (addTagText.text.isNotEmpty()) true else false
+                        ) {
+                            Text("Add tag")
+                        }
+                        TextButton(
+                            onClick = {
+                                viewModel.onEventTags(TagsEvents.AddTagAlertDialog)
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(statesMain.value.tagsList) {
+        println("launched eff")
+        println(statesMain.value.tagsList)
+    }
 
     Scaffold() { paddingValues ->
         ConstraintLayout(
@@ -84,46 +201,38 @@ fun HomeScreenPage() {
                             Icon(
                                 imageVector = Icons.Outlined.Add,
                                 contentDescription = "Add tag",
-                                modifier = Modifier.clickable { openAddTag = !openAddTag }
+                                modifier = Modifier.clickable { viewModel.onEventTags(TagsEvents.AddTagAlertDialog) }
                             )
-                            DropdownMenu(
-                                expanded = openAddTag,
-                                onDismissRequest = { openAddTag = false }) {
-                                Column() {
-                                    Row(Modifier.padding(5.dp)) {
-                                        TextField(value = addTagText, onValueChange = { })
-
-                                    }
-                                    Row(Modifier.padding(5.dp)) {
-                                        Button(onClick = { /*TODO*/ }) {
-                                            Text(text = "Add")
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                     Row() {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.secondary)
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            Tags(
-                                tagsList = listOf(
-                                    "tag",
-                                    "test",
-                                    "test",
-                                    "test",
-                                    "test",
-                                    "1",
-                                    "2",
-                                    "3",
-                                    "test"
-                                )
-                            )
+                            statesMain.value.tagsList?.let {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    if (it.isNotEmpty()) {
+                                        itemsIndexed(it) { index, item ->
+                                            TagItem(
+                                                tag = item,
+                                                deleteClick = {
+                                                    viewModel.onEventTags(
+                                                        TagsEvents.DeleteTag(id = item.uid!!)
+                                                    )
+                                                })
+                                        }
+                                    } else {
+                                        item {
+                                            Text(text = "no tags")
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -143,7 +252,6 @@ fun HomeScreenPage() {
                 val maxWidth = maxWidth
                 val maxHeight = maxHeight
                 val notesList = listOf("1", "2", "3")
-                val tagsList = listOf("tag", "job", "test", "app")
                 Column(Modifier.size(maxWidth)) {
                     Row() {
                         HomePageHeader(title = "Последнее")
@@ -157,7 +265,7 @@ fun HomeScreenPage() {
                                 NoteBox(
                                     title = "test title",
                                     content = "fsdfsfsfsdf sdfsd fsd fsdf sdf",
-                                    tags = tagsList
+                                    tags = listOf()
                                 )
                             }
                         }
@@ -174,7 +282,7 @@ fun HomeScreenPage() {
 fun NoteBox(
     title: String,
     content: String,
-    tags: List<String> = listOf()
+    tags: List<Tag> = listOf()
 ) {
     Column(
         modifier = Modifier
@@ -196,7 +304,7 @@ fun NoteBox(
             )
         }
         Row(modifier = Modifier.padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)) {
-            Tags(tagsList = tags)
+            //Tags(tagsList = tags)
         }
     }
 }
@@ -214,54 +322,3 @@ fun HomePageHeader(
         )
     }
 }
-
-@Composable
-fun Tags(
-    tagsList: List<String>
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        items(items = tagsList) { value ->
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.Red)
-                    .border(
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.background),
-                        RoundedCornerShape(20.dp)
-                    )
-                    .padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 4.dp)
-            ) {
-                Text(
-                    text = "#$value",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight(600)
-                )
-            }
-
-        }
-    }
-}
-
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun TagsPreview() {
-    val tagsList = listOf("tag", "job", "test", "app")
-    Tags(tagsList)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPageHeaderPreview() {
-    HomePageHeader(title = "Тестовый заголовок")
-}
-
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun HomeScreenPagePreview() {
-    HomeScreenPage()
-}
-
-

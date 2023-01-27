@@ -39,6 +39,4 @@ class RoomModule @Inject constructor() {
     fun providerNoteDAO(appDatabase: AppDatabase): NoteDAO {
         return appDatabase.noteDAO()
     }
-
-
 }

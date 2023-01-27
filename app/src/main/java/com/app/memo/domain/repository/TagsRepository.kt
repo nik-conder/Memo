@@ -1,8 +1,12 @@
 package com.app.memo.domain.repository
 
-interface TagsRepository {
+import com.app.memo.data.enities.Tag
+import kotlinx.coroutines.flow.Flow
 
-    fun testFunRepo(): String {
-        return "pizda"
-    }
+interface TagsRepository {
+    suspend fun addTag(text: String): Long
+
+    suspend fun getAllTags(): Flow<List<Tag>>
+
+    suspend fun deleteTag(id: Int): Int
 }

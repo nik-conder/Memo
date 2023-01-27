@@ -1,4 +1,8 @@
 package com.app.memo.data.dao
 
-class NoteDAO {
+import androidx.room.Dao
+
+@Dao
+interface NoteDAO {
+
 }

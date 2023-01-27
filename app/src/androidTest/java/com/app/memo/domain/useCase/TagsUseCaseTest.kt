@@ -1,50 +1,51 @@
 package com.app.memo.domain.useCase
 
-import android.app.Application
-import android.content.Context
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.runner.AndroidJUnitRunner
-import com.app.memo.App
-import com.app.memo.data.AppDatabase
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.app.memo.data.dao.TagDAO
-import dagger.hilt.android.testing.CustomTestApplication
+import com.app.memo.data.enities.Tag
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.HiltTestApplication
-import org.junit.After
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import java.io.IOException
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.runner.RunWith
 import javax.inject.Inject
 
+@DisplayName("A special test case")
 @HiltAndroidTest
-internal class TagsUseCaseTest: AndroidJUnitRunner(){
+internal class TagsUseCaseTest {
 
-    @Inject lateinit var db: AppDatabase
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
 
-    @Inject lateinit var tagDAO: TagDAO
+    @Inject
+    lateinit var tagDAO: TagDAO
 
 
     @Before
-    fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
+    fun init() {
+        hiltRule.inject()
     }
 
-    @After
-    @Throws(IOException::class)
-    fun closeDb() {
-        db.close()
+
+    suspend fun createTag( text: String, color: Long) {
+        return tagDAO.insertTag(Tag(text = text, color = color))
     }
+
 
     @Test
-    fun loadingTags() {
-        println(db.tagsDAO())
-        println("OHHH YES YES BITCH YEEEES")
-        assertEquals(3,3)
-    }
+    fun addTag() {
+        runBlocking {
+            val result = createTag(text = "tag", color = 0xFFF)
+            for (i in 0..5) {
+                createTag(text = "tag$i", color = 0xFFF)
+            }
+            assertNotNull(result)
+            println("result: $result")
+        }
+    } 
+
 }
