@@ -1,6 +1,8 @@
 package com.app.memo.di.modules
 
+import com.app.memo.domain.repository.NotesRepository
 import com.app.memo.domain.repository.TagsRepository
+import com.app.memo.domain.useCase.NotesUseCase
 import com.app.memo.domain.useCase.TagsUseCase
 import dagger.Module
 import dagger.Provides
@@ -17,4 +19,10 @@ class DomainModule @Inject constructor() {
      fun provideTagsUseCase(tagsRepository: TagsRepository): TagsUseCase {
          return TagsUseCase(tagsRepository)
      }
+
+    @Singleton
+    @Provides
+    fun providerNotesUseCase(notesRepository: NotesRepository): NotesUseCase {
+        return NotesUseCase(notesRepository)
+    }
 }

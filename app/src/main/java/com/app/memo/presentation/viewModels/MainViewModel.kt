@@ -1,20 +1,25 @@
 package com.app.memo.presentation.viewModels
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.memo.Limits.LIMIT_ADD_TAG
-import com.app.memo.Limits.NUMBER_CHARACTERS_TAG
+import androidx.paging.*
+import com.app.memo.ConfigurationApp.Limits.TAGS_ADD
+import com.app.memo.ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS
+import com.app.memo.data.enities.Note
+import com.app.memo.data.enities.Tag
+import com.app.memo.data.paging.NotesPagingSource
+import com.app.memo.domain.useCase.NotesUseCase
 import com.app.memo.domain.useCase.TagsUseCase
+import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.events.TagsEvents
 import com.app.memo.presentation.states.MainStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,39 +27,49 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val context: Context,
-    private val tagsUseCase: TagsUseCase
+    private val tagsUseCase: TagsUseCase,
+    private val notesUseCase: NotesUseCase
 ) : ViewModel() {
 
     private val _statesMain = MutableStateFlow(MainStates())
     val statesMain: StateFlow<MainStates> = _statesMain
 
-    init {
 
+    init {
         viewModelScope.launch {
             loadTags()
         }
     }
 
-    fun loading() {
+    val pagingNotes: Flow<PagingData<Note>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = {
+            notesUseCase.getAllNotes()
+        }
+    ).flow.cachedIn(viewModelScope)
 
-    }
+    var listNotes = pagingNotes
 
     private suspend fun loadTags() {
-        tagsUseCase.getAllTags().collect(){
-                currentValue -> _statesMain.update {newValues -> newValues.copy(tagsList = currentValue)  }
+        tagsUseCase.getAllTags().collect() { currentValue ->
+            _statesMain.update { newValues -> newValues.copy(tagsList = currentValue) }
             println(currentValue)
         }
     }
 
     fun onEventTags(event: TagsEvents) {
 
-        when(event) {
+        when (event) {
             is TagsEvents.AddTag -> {
-
-                if (statesMain.value.tagsList?.size!! < LIMIT_ADD_TAG) {
-                    if (event.text.length <= NUMBER_CHARACTERS_TAG) {
+                if (statesMain.value.tagsList?.size!! < TAGS_ADD) {
+                    if (event.text.length <= TAG_NUMBER_CHARACTERS) {
                         CoroutineScope(Dispatchers.Main).launch {
-                            val result = tagsUseCase.addTag(text = event.text)
+                            val result = tagsUseCase.addTag(
+                                tag = Tag(
+                                    text = event.text,
+                                    color = event.color
+                                )
+                            )
                             println("add  tag $result")
                         }
                     } else {
@@ -69,7 +84,11 @@ class MainViewModel @Inject constructor(
             is TagsEvents.DeleteTag -> {
                 CoroutineScope(Dispatchers.Main).launch {
                     val result = tagsUseCase.deleteTag(id = event.id)
-                    Toast.makeText(context, if (result > 0) "Deleted" else "Error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        if (result > 0) "Deleted" else "Error",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -84,6 +103,55 @@ class MainViewModel @Inject constructor(
 
     }
 
+    fun onEventsNotes(event: NotesEvents) {
+        when (event) {
 
+            is NotesEvents.AddNote -> {
+                event.note.let {
+                    if (it.title != null || it.text != null) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val result = notesUseCase.addNote(it)
+                            println("result: $result")
+                        }
+                        println("ADD NOTE")
+                        this.onEventsNotes(NotesEvents.ShowCreateNoteBox)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Ошибка! Заметка не может быть пустой",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
 
+            is NotesEvents.DeleteNote -> {
+
+            }
+
+            is NotesEvents.EditNote -> {
+
+            }
+
+            is NotesEvents.RefreshListNotes -> {
+                try {
+                    viewModelScope.launch {
+                        listNotes.collectLatest { data ->
+                           data.filter { it.id == 1 }
+                        }
+
+                    }
+                } catch (e: Exception) {
+                    Log.e("notes", e.message.toString())
+                    Toast.makeText(context, "Ошибка!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            is NotesEvents.ShowCreateNoteBox -> {
+                _statesMain.update { newValue ->
+                    newValue.copy(showCreateNoteBox = !statesMain.value.showCreateNoteBox)
+                }
+            }
+        }
+    }
 }

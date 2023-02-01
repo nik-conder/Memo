@@ -4,7 +4,7 @@ import com.app.memo.data.enities.Tag
 import kotlinx.coroutines.flow.Flow
 
 interface TagsRepository {
-    suspend fun addTag(text: String): Long
+    suspend fun addTag(tag: Tag)
 
     suspend fun getAllTags(): Flow<List<Tag>>
 

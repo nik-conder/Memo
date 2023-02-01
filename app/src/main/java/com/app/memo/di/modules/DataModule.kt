@@ -3,6 +3,7 @@ package com.app.memo.di.modules
 import android.content.Context
 import com.app.memo.data.dao.NoteDAO
 import com.app.memo.data.dao.TagDAO
+import com.app.memo.data.paging.NotesPagingSource
 import com.app.memo.data.repository.NotesRepositoryImpl
 import com.app.memo.data.repository.TagsRepositoryImpl
 import com.app.memo.domain.repository.NotesRepository
@@ -19,21 +20,26 @@ import javax.inject.Singleton
 @Module(includes = [RoomModule::class])
 class DataModule @Inject constructor() {
 
-   @Singleton
-   @Provides
-   fun providerTagsRepository(
-       @ApplicationContext context: Context,
-       tagDAO: TagDAO
-   ): TagsRepository {
-       return TagsRepositoryImpl(context, tagDAO)
-   }
+    @Singleton
+    @Provides
+    fun providerTagsRepository(
+        @ApplicationContext context: Context,
+        tagDAO: TagDAO
+    ): TagsRepository {
+        return TagsRepositoryImpl(context, tagDAO)
+    }
 
     @Singleton
     @Provides
     fun providerNotesRepository(
         @ApplicationContext context: Context,
-        noteDAO: NoteDAO
+        noteDAO: NoteDAO,
+        notesPagingSource: NotesPagingSource
     ): NotesRepository {
-        return NotesRepositoryImpl(context, noteDAO)
+        return NotesRepositoryImpl(
+            context,
+            noteDAO,
+            notesPagingSource
+        )
     }
 }

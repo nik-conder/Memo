@@ -13,8 +13,8 @@ class TagsUseCase @Inject constructor(
 
     }
 
-    suspend fun addTag(text: String): Long {
-        return tagsRepository.addTag(text = text)
+    suspend fun addTag(tag: Tag) {
+        return tagsRepository.addTag(tag)
     }
 
     suspend fun getAllTags(): Flow<List<Tag>> {

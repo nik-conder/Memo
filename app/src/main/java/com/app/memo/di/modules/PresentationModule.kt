@@ -1,6 +1,7 @@
 package com.app.memo.di.modules
 
 import android.content.Context
+import com.app.memo.domain.useCase.NotesUseCase
 import com.app.memo.domain.useCase.TagsUseCase
 import com.app.memo.presentation.viewModels.MainViewModel
 import dagger.Module
@@ -18,8 +19,8 @@ class PresentationModule @Inject constructor() {
 
     @Singleton
     @Provides
-    fun provideMainViewModel(@ApplicationContext context: Context,tagsUseCase: TagsUseCase): MainViewModel {
-        return MainViewModel(context, tagsUseCase)
+    fun provideMainViewModel(@ApplicationContext context: Context,tagsUseCase: TagsUseCase, notesUseCase: NotesUseCase): MainViewModel {
+        return MainViewModel(context, tagsUseCase, notesUseCase)
     }
 
 }

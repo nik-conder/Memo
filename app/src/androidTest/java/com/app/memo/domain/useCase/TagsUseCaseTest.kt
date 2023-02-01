@@ -46,6 +46,6 @@ internal class TagsUseCaseTest {
             assertNotNull(result)
             println("result: $result")
         }
-    } 
+    }
 
 }

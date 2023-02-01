@@ -2,6 +2,8 @@ package com.app.memo.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.app.memo.data.dao.ConvertersTags
 import com.app.memo.data.dao.NoteDAO
 import com.app.memo.data.dao.TagDAO
 import com.app.memo.data.dao.UserDAO
@@ -14,6 +16,7 @@ import com.app.memo.data.enities.User
     version = 1, /* TODO: !!!!! */
     exportSchema = true
 )
+@TypeConverters(ConvertersTags::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tagsDAO(): TagDAO
     abstract fun noteDAO(): NoteDAO

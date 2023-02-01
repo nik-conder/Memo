@@ -1,6 +1,15 @@
 package com.app.memo
 
-object Limits {
-    const val LIMIT_ADD_TAG: Int = 16
-    const val NUMBER_CHARACTERS_TAG: Int = 16
+sealed interface ConfigurationApp {
+    object Limits {
+        const val TAGS_ADD: Int = 16
+        const val TAG_NUMBER_CHARACTERS: Int = 16
+        const val NOTE_NUMBER_CHARACTERS_TITLE: Int = 32
+        const val NOTE_NUMBER_CHARACTERS_TEXT: Int = 1024
+        const val NOTE_NUMBER_TAGS: Int = 8
+    }
+
+    interface Global {
+
+    }
 }
