@@ -16,9 +16,11 @@ class NotesRepositoryImpl @Inject constructor(
     private val noteDAO: NoteDAO,
     private val notesPagingSource: NotesPagingSource
 ) : NotesRepository {
-    override suspend fun addNote(note: Note) {
-        println(note)
-        return noteDAO.insertNote(note)
+
+    override suspend fun addNote(note: Note) = noteDAO.insertNote(note)
+
+    override fun test(): String {
+        return "Hello world :)"
     }
 
     override fun getAllNotes(): NotesPagingSource = notesPagingSource

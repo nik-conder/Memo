@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.app.memo.ConfigurationApp.Limits.TAGS_ADD
-import com.app.memo.ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS
+import com.app.memo.ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS_TEXT
+import com.app.memo.data.SystemMessages
+import com.app.memo.data.Validator
 import com.app.memo.data.enities.Note
 import com.app.memo.data.enities.Tag
 import com.app.memo.data.paging.NotesPagingSource
@@ -24,7 +26,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-
 class MainViewModel @Inject constructor(
     private val context: Context,
     private val tagsUseCase: TagsUseCase,
@@ -34,11 +35,14 @@ class MainViewModel @Inject constructor(
     private val _statesMain = MutableStateFlow(MainStates())
     val statesMain: StateFlow<MainStates> = _statesMain
 
-
     init {
         viewModelScope.launch {
             loadTags()
         }
+    }
+
+    fun loading(): String {
+        return "loading"
     }
 
     val pagingNotes: Flow<PagingData<Note>> = Pager(
@@ -61,24 +65,40 @@ class MainViewModel @Inject constructor(
 
         when (event) {
             is TagsEvents.AddTag -> {
-                if (statesMain.value.tagsList?.size!! < TAGS_ADD) {
-                    if (event.text.length <= TAG_NUMBER_CHARACTERS) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            val result = tagsUseCase.addTag(
-                                tag = Tag(
-                                    text = event.text,
-                                    color = event.color
-                                )
-                            )
-                            println("add  tag $result")
-                        }
-                    } else {
-                        Toast.makeText(context, "Лимит символов", Toast.LENGTH_SHORT).show()
-                    }
 
+                val validator = Validator.TagValidator(event.tag)
+                val isValid = validator.isValid()
+
+                if (isValid.isValid) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val result = tagsUseCase.addTag(
+                            tag = event.tag
+                        )
+                        println("add  tag $result")
+                    }
+                    onEventTags(TagsEvents.AddTagAlertDialog)
                 } else {
-                    Toast.makeText(context, "Лимит тегов", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getMsg(isValid.code), Toast.LENGTH_SHORT).show()
                 }
+
+//                if (statesMain.value.tagsList?.size!! < TAGS_ADD) {
+//                    if (event.text.length <= TAG_NUMBER_CHARACTERS_TEXT) {
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            val result = tagsUseCase.addTag(
+//                                tag = Tag(
+//                                    text = event.text,
+//                                    color = event.color
+//                                )
+//                            )
+//                            println("add  tag $result")
+//                        }
+//                    } else {
+//                        Toast.makeText(context, "Лимит символов", Toast.LENGTH_SHORT).show()
+//                    }
+//
+//                } else {
+//                    Toast.makeText(context, "Лимит тегов", Toast.LENGTH_SHORT).show()
+//                }
             }
 
             is TagsEvents.DeleteTag -> {
@@ -95,7 +115,7 @@ class MainViewModel @Inject constructor(
             is TagsEvents.AddTagAlertDialog -> {
                 _statesMain.update { newValue ->
                     newValue.copy(
-                        openAlertDialogAddTag = if (statesMain.value.openAlertDialogAddTag) false else true
+                        openAlertDialogAddTag = !statesMain.value.openAlertDialogAddTag
                     )
                 }
             }
@@ -137,7 +157,7 @@ class MainViewModel @Inject constructor(
                 try {
                     viewModelScope.launch {
                         listNotes.collectLatest { data ->
-                           data.filter { it.id == 1 }
+                            data.filter { it.id == 1 }
                         }
 
                     }
@@ -153,5 +173,9 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun getMsg(code: Int): Int {
+        return SystemMessages.Message(code).getMessage()
     }
 }

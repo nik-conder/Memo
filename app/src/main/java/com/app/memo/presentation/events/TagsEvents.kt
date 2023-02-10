@@ -1,7 +1,9 @@
 package com.app.memo.presentation.events
 
-sealed class TagsEvents() {
-    class AddTag(val text: String, val color: Long): TagsEvents()
+import com.app.memo.data.enities.Tag
+
+sealed class TagsEvents {
+    class AddTag(val tag: Tag): TagsEvents()
     class DeleteTag(val id: Int): TagsEvents()
     object AddTagAlertDialog: TagsEvents()
 }

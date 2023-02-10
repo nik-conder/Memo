@@ -17,7 +17,7 @@ class ConvertTags {
 @Entity
 data class Note(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "title") val title: String?,
+    @ColumnInfo(name = "title") val title: String? = null,
     @ColumnInfo(name = "text") val text: String? = null,
    //@ColumnInfo(name = "data") val data: String? = null,
    //@ColumnInfo(name = "tags") val tags: String? = null,

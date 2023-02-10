@@ -17,7 +17,7 @@ class App : Application() {
 }
 
 val Context.appComponent: AppComponent
-    get() = when(this) {
+    get() = when (this) {
         is App -> appComponent
         else -> this.applicationContext.appComponent
     }

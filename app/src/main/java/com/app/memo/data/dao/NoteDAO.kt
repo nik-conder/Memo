@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface NoteDAO {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertNote(vararg note: Note)
+    suspend fun insertNote(note: Note)
 
     @Query("SELECT * FROM Note ORDER BY id DESC LIMIT :limit OFFSET :offset")
     fun getAllNotes(limit: Int, offset: Int): List<Note>

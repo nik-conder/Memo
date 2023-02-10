@@ -7,4 +7,5 @@ interface NotesRepository {
     suspend fun addNote(note: Note)
     fun getAllNotes(): NotesPagingSource
     fun updateAllNotes()
+    fun test(): String
 }

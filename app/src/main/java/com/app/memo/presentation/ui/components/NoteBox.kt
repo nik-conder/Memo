@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
@@ -32,13 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import com.app.memo.ConfigurationApp.Limits.NOTE_ATTACHED_TAGS
 import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_CHARACTERS_TEXT
 import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_CHARACTERS_TITLE
-import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_TAGS
 import com.app.memo.data.enities.Note
 import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.ui.screens.HomePageHeader
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,13 +175,14 @@ fun NoteBox(
         modifier = Modifier
             .fillMaxWidth(1f)
             .wrapContentHeight()
+            .testTag("NoteBox")
             .border(
                 BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
                 RoundedCornerShape(10.dp)
             )
             .background(color = MaterialTheme.colorScheme.secondary, RoundedCornerShape(10.dp))
     ) {
-        Column() {
+        Column {
             if (note.title?.isNotEmpty() == true) {
                 Row(
                     modifier = Modifier
@@ -190,11 +190,12 @@ fun NoteBox(
                         .fillMaxWidth(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
-                            .padding(start = 8.dp),
-                        horizontalAlignment = Alignment.Start
+                            .padding(start = 8.dp)
+                            .testTag("NoteBoxTitle"),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
                             text = note.title,
@@ -204,11 +205,12 @@ fun NoteBox(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth(1f)
-                            .padding(end = 8.dp),
-                        horizontalAlignment = Alignment.End
+                            .padding(end = 8.dp)
+                            .testTag("NoteBoxDate"),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
                         Text(
                             text = "29.01.22 5:20",
@@ -224,7 +226,8 @@ fun NoteBox(
                     modifier = Modifier
                         //.verticalScroll(rememberScrollState())
                         .padding(18.dp)
-                        .fillMaxWidth(1f),
+                        .fillMaxWidth(1f)
+                        .testTag("NoteBoxText"),
                 ) {
                     Text(
                         text = note.text,
@@ -247,7 +250,7 @@ fun NoteCreateBox(
     var addNoteText by remember { mutableStateOf(TextFieldValue("")) }
     val limitNoteTitle = NOTE_NUMBER_CHARACTERS_TITLE
     val limitNoteText = NOTE_NUMBER_CHARACTERS_TEXT
-    val limitNoteTags = NOTE_NUMBER_TAGS
+    val limitNoteTags = NOTE_ATTACHED_TAGS
     val showKeyboard = remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current

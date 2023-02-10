@@ -20,10 +20,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.memo.ConfigurationApp
+import com.app.memo.data.enities.Tag
 import com.app.memo.presentation.events.TagsEvents
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -33,7 +35,7 @@ fun AddTagAlertDialog(
     onEventsTags: (TagsEvents) -> Unit
 ) {
     var addTagText by remember { mutableStateOf(TextFieldValue("")) }
-    val addTagTextMaxChar = ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS
+    val addTagTextMaxChar = ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS_TEXT
     val showKeyboard = remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -56,8 +58,7 @@ fun AddTagAlertDialog(
     if (openDialogState) {
         AlertDialog(
             onDismissRequest = { onEventsTags.invoke(TagsEvents.AddTagAlertDialog) },
-
-            ) {
+        ) {
             Surface(
                 modifier = Modifier
                     .wrapContentWidth()
@@ -72,7 +73,9 @@ fun AddTagAlertDialog(
                                 maxLines = 1,
                                 singleLine = true,
                                 label = { Text(text = "Название тега") },
-                                modifier = Modifier.focusRequester(focusRequester),
+                                modifier = Modifier
+                                    .focusRequester(focusRequester)
+                                    .testTag("TagNameTextField"),
                                 value = addTagText,
                                 isError = addTagTextMaxChar - addTagText.text.length == 0,
                                 onValueChange = { newText ->
@@ -154,11 +157,12 @@ fun AddTagAlertDialog(
                             onClick = {
                                 onEventsTags.invoke(
                                     TagsEvents.AddTag(
-                                        text = addTagText.text,
-                                        color = if (selectedColor != 0L) selectedColor else 0xFFFFC300
+                                        Tag(
+                                            text = addTagText.text,
+                                            color = if (selectedColor != 0L) selectedColor else 0xFFFFC300
+                                        )
                                     )
                                 )
-                                onEventsTags.invoke(TagsEvents.AddTagAlertDialog)
                                 addTagText = TextFieldValue("")
                             },
                             enabled = if (addTagText.text.isNotEmpty()) true else false

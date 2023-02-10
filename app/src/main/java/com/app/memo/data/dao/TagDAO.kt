@@ -21,7 +21,7 @@ interface ConvertersTags {
 @Dao
 interface TagDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTag(tag: Tag)
+    suspend fun insertTag(tag: Tag): Long
 
     @Query("DELETE FROM Tag")
     fun deleteAllTags(): Int
@@ -31,6 +31,9 @@ interface TagDAO {
 
     @Query("DELETE FROM Tag WHERE id = (:id)")
     fun deleteTag(id: Int): Int
+
+    @Query("SELECT * FROM Tag WHERE id = (:id)")
+    fun getTag(id: Int): Tag
 
 
 }
