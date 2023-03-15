@@ -74,11 +74,12 @@ fun NotesBox(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "Add tag",
-                    modifier = Modifier.clickable { onEventsNotes.invoke(NotesEvents.ShowCreateNoteBox) }
-                )
+                IconButton(onClick = { onEventsNotes.invoke(NotesEvents.ShowCreateNoteBox) }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = "Add tag"
+                    )
+                }
             }
         }
         Row(
@@ -326,13 +327,12 @@ fun NoteCreateBox(
                             enter = fadeIn() + slideInHorizontally(),
                             exit = fadeOut() + slideOutHorizontally()
                         ) {
-                            Icon(
-                                modifier = Modifier.clickable {
-                                    addNoteTitle = TextFieldValue("")
-                                },
-                                imageVector = Icons.Rounded.Clear,
-                                contentDescription = "Clear"
-                            )
+                            IconButton(onClick = { addNoteTitle = TextFieldValue("") }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Clear,
+                                    contentDescription = "Clear"
+                                )
+                            }
                         }
                     },
                     singleLine = true,
@@ -365,13 +365,12 @@ fun NoteCreateBox(
                             enter = fadeIn() + slideInHorizontally(),
                             exit = fadeOut() + slideOutHorizontally()
                         ) {
-                            Icon(
-                                modifier = Modifier.clickable {
-                                    addNoteText = TextFieldValue("")
-                                },
-                                imageVector = Icons.Rounded.Clear,
-                                contentDescription = "Clear"
-                            )
+                            IconButton(onClick = { addNoteText = TextFieldValue("") }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Clear,
+                                    contentDescription = "Clear"
+                                )
+                            }
                         }
                     },
                     isError = limitNoteText - addNoteText.text.length == 0,

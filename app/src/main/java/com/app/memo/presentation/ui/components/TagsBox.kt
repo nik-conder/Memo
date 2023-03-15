@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,22 +44,23 @@ fun TagsBox(
             .horizontalScroll(scroll)
             .width(maxWidth)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column() {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Column(modifier = Modifier
+                .padding(top = 6.dp)) {
                 HomePageHeader(title = "Теги")
             }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp),
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "Add tag",
-                    modifier = Modifier.clickable { onEventsTags.invoke(TagsEvents.AddTagAlertDialog) }
-                )
+                IconButton(onClick = { onEventsTags.invoke(TagsEvents.AddTagAlertDialog)}) {
+                    Icon(
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = "Add tag"
+                    )
+                }
             }
         }
 
@@ -149,7 +151,7 @@ fun TagItem(
                 BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
                 RoundedCornerShape(20.dp)
             )
-            .padding(8.dp)
+            .padding(start = 12.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -165,11 +167,12 @@ fun TagItem(
                 )
             }
             Column {
-                Icon(
-                    modifier = Modifier.clickable(onClick = deleteClick),
-                    imageVector = Icons.Rounded.Clear,
-                    contentDescription = "Delete"
-                )
+                IconButton(onClick = deleteClick) {
+                    Icon(
+                        imageVector = Icons.Rounded.Clear,
+                        contentDescription = "Delete"
+                    )
+                }
             }
         }
     }

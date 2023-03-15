@@ -38,23 +38,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun loading(): String {
-        return "loading"
+    fun pagingNotes(): Flow<PagingData<Note>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false, maxSize = 60),
+            pagingSourceFactory = {
+                println("-----------------------------")
+                notesUseCase.getAllNotes()
+            }
+        ).flow.cachedIn(viewModelScope)
     }
 
     //val pagingSource = notesUseCase.getAllNotes()
-
-    @OptIn(ExperimentalPagingApi::class)
-    val pagingNotes: Flow<PagingData<Note>> = Pager(
-        config = PagingConfig(pageSize = 20, enablePlaceholders = false, maxSize = 60),
-        pagingSourceFactory = {
-            println("-----------------------------")
-            notesUseCase.getAllNotes()
-
-        }
-    ).flow.cachedIn(viewModelScope)
-
-    var listNotes = pagingNotes
 
     private suspend fun loadTags() {
         tagsUseCase.getAllTags().collect() { currentValue ->
@@ -163,12 +157,7 @@ class MainViewModel @Inject constructor(
 
             is NotesEvents.RefreshListNotes -> {
                 try {
-                    viewModelScope.launch {
-                        listNotes.collectLatest { data ->
-                            data.filter { it.id == 1 }
-                        }
-
-                    }
+                    pagingNotes()
                 } catch (e: Exception) {
                     Log.e("notes", e.message.toString())
                     Toast.makeText(context, "Ошибка!", Toast.LENGTH_SHORT).show()

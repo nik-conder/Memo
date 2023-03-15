@@ -35,7 +35,7 @@ fun HomeScreenPage(
     val statesMain = viewModel.statesMain.collectAsState()
     val tagsList = statesMain.value.tagsList
     //val notesList = viewModel.pagingNotes.collectAsLazyPagingItems()
-    val notesList = viewModel.listNotes.collectAsLazyPagingItems()
+    val notesList = viewModel.pagingNotes().collectAsLazyPagingItems()
     val showCreateNoteBox = statesMain.value.showCreateNoteBox
 
     AddTagAlertDialog(
@@ -54,6 +54,12 @@ fun HomeScreenPage(
                          Icon(
                              imageVector = Icons.Outlined.Add,
                              contentDescription = "Generate notes"
+                         )
+                     }
+                     IconButton(onClick = { notesList.refresh() }) {
+                         Icon(
+                             imageVector = Icons.Outlined.Refresh,
+                             contentDescription = "Refresh notes"
                          )
                      }
                  }
