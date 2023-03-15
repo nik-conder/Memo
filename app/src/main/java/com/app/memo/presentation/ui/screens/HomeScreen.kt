@@ -1,6 +1,9 @@
 package com.app.memo.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,6 +13,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.ui.components.*
 import com.app.memo.presentation.ui.components.alertDialogs.AddTagAlertDialog
 import com.app.memo.presentation.viewModels.MainViewModel
@@ -40,8 +44,23 @@ fun HomeScreenPage(
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(text = "MemoApp") }) }
-    ) { paddingValues ->
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "MemoApp")
+                },
+                 actions = {
+                     IconButton(onClick = { onEventsNotes.invoke(NotesEvents.GenerateNotes) }) {
+                         Icon(
+                             imageVector = Icons.Outlined.Add,
+                             contentDescription = "Generate notes"
+                         )
+                     }
+                 }
+            )
+        },
+
+        ) { paddingValues ->
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()

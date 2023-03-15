@@ -23,7 +23,11 @@ class NotesRepositoryImpl @Inject constructor(
         return "Hello world :)"
     }
 
-    override fun getAllNotes(): NotesPagingSource = notesPagingSource
+    override fun deleteNote(note: Note) {
+        return noteDAO.deleteNote(note)
+    }
+
+    override fun getAllNotes(): NotesPagingSource = NotesPagingSource(noteDAO)
 
     override fun updateAllNotes() =  notesPagingSource.invalidate()
 

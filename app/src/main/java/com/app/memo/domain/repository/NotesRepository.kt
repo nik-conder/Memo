@@ -8,4 +8,6 @@ interface NotesRepository {
     fun getAllNotes(): NotesPagingSource
     fun updateAllNotes()
     fun test(): String
+
+    fun deleteNote(note: Note)
 }

@@ -16,4 +16,7 @@ class NotesUseCase @Inject constructor(
     fun getAllNotes(): NotesPagingSource = notesRepository.getAllNotes()
 
     fun updateAllNotes() = notesRepository.updateAllNotes()
+    fun deleteNote(note: Note) {
+        notesRepository.deleteNote(note)
+    }
 }

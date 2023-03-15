@@ -49,7 +49,6 @@ fun NotesBox(
 ) {
     val listState = rememberLazyListState()
     val scroll = rememberScrollState()
-    val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier
         .verticalScroll(scroll)
@@ -61,7 +60,8 @@ fun NotesBox(
         ) {
             Column(modifier = Modifier.clickable {
                 notesList.refresh()
-                notesList.retry()
+                //notesList.retry()
+                //notesList.peek(notesList.itemSnapshotList.lastIndex)
                 println("refresh " + notesList.loadState.mediator?.refresh)
                 println("append " + notesList.loadState.mediator?.append)
                 println("prepend " + notesList.loadState.mediator?.prepend)
@@ -89,7 +89,7 @@ fun NotesBox(
                 enter = fadeIn() + slideInVertically(),
                 exit = fadeOut() + slideOutVertically()
             ) {
-                NoteCreateBox(onEventsNotes)
+                NoteCreateBox(onEventsNotes = onEventsNotes, notesList = notesList)
             }
         }
         Row() {
@@ -97,21 +97,29 @@ fun NotesBox(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (notesList.loadState.prepend == LoadState.Loading) {
-                    item (key = "prepend_loading") { Text(text = "Loading") }
-                } else if (notesList.loadState.prepend is LoadState.Error) {
-                    item (key = "prepend_error") { Text(text = "Error") }
+                when (notesList.loadState.refresh) { //FIRST LOAD
+                    is LoadState.Error -> {
+                        println("refresh error")
+                    }
+                    is LoadState.Loading -> {
+                        println("refresh Loading")
+                        notesList.refresh()
+                    }
+                    is LoadState.NotLoading -> {
+                        println("refresh NotLoading")
+                    }
                 }
 
-
                 if (notesList.itemCount > 0) {
-                    items(items = notesList.itemSnapshotList) { value ->
+                    items(items = notesList.itemSnapshotList, key = { it?.id ?: 0 }) { value ->
                         var dismissState = rememberDismissState()
 
                         if (value != null) {
 
                             if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                                 dismissState = DismissState(DismissValue.Default)
+                                onEventsNotes.invoke(NotesEvents.DeleteNote(value))
+                                notesList.refresh()
                                 println("DismissDirection.EndToStart")
                             } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
                                 println("DismissDirection.StartToEnd")
@@ -154,12 +162,35 @@ fun NotesBox(
                                 },
                                 dismissContent = {
                                     NoteBox(note = value)
-                            })
+                                })
                         }
                     }
                 } else {
                     item {
                         Text(text = "No notes")
+                    }
+                }
+                when (notesList.loadState.append) {
+                    is LoadState.Error -> {
+                        println("append error")
+                    }
+                    is LoadState.Loading -> {
+                        println("append Loading")
+                    }
+                    is LoadState.NotLoading -> {
+                        println("append NotLoading")
+                    }
+                }
+
+                when (notesList.loadState.prepend) {
+                    is LoadState.Error -> {
+                        println("prepend error")
+                    }
+                    is LoadState.Loading -> {
+                        println("prepend Loading")
+                    }
+                    is LoadState.NotLoading -> {
+                        println("prepend NotLoading")
                     }
                 }
             }
@@ -244,6 +275,7 @@ fun NoteBox(
 @Composable
 fun NoteCreateBox(
     onEventsNotes: (NotesEvents) -> Unit,
+    notesList: LazyPagingItems<Note>
 ) {
 
     var addNoteTitle by remember { mutableStateOf(TextFieldValue("")) }
@@ -375,6 +407,7 @@ fun NoteCreateBox(
                             onEventsNotes.invoke(NotesEvents.AddNote(Note(title = addNoteTitle.text, text = addNoteText.text)))
                             addNoteTitle = TextFieldValue("")
                             addNoteText = TextFieldValue("")
+                            notesList.refresh()
                         },
                         enabled = addNoteTitle.text.isNotEmpty() || addNoteText.text.isNotEmpty()
                     ) {

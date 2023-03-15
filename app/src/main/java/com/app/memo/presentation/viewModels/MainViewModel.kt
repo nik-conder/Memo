@@ -1,18 +1,15 @@
 package com.app.memo.presentation.viewModels
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
-import com.app.memo.ConfigurationApp.Limits.TAGS_ADD
-import com.app.memo.ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS_TEXT
 import com.app.memo.data.SystemMessages
 import com.app.memo.data.Validator
 import com.app.memo.data.enities.Note
-import com.app.memo.data.enities.Tag
-import com.app.memo.data.paging.NotesPagingSource
 import com.app.memo.domain.useCase.NotesUseCase
 import com.app.memo.domain.useCase.TagsUseCase
 import com.app.memo.presentation.events.NotesEvents
@@ -45,10 +42,15 @@ class MainViewModel @Inject constructor(
         return "loading"
     }
 
+    //val pagingSource = notesUseCase.getAllNotes()
+
+    @OptIn(ExperimentalPagingApi::class)
     val pagingNotes: Flow<PagingData<Note>> = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        config = PagingConfig(pageSize = 20, enablePlaceholders = false, maxSize = 60),
         pagingSourceFactory = {
+            println("-----------------------------")
             notesUseCase.getAllNotes()
+
         }
     ).flow.cachedIn(viewModelScope)
 
@@ -76,6 +78,7 @@ class MainViewModel @Inject constructor(
                         )
                         println("add  tag $result")
                     }
+
                     onEventTags(TagsEvents.AddTagAlertDialog)
                 } else {
                     Toast.makeText(context, getMsg(isValid.code), Toast.LENGTH_SHORT).show()
@@ -133,7 +136,6 @@ class MainViewModel @Inject constructor(
                             val result = notesUseCase.addNote(it)
                             println("result: $result")
                         }
-                        println("ADD NOTE")
                         this.onEventsNotes(NotesEvents.ShowCreateNoteBox)
                     } else {
                         Toast.makeText(
@@ -146,7 +148,13 @@ class MainViewModel @Inject constructor(
             }
 
             is NotesEvents.DeleteNote -> {
-
+                viewModelScope.launch {
+                    try {
+                        notesUseCase.deleteNote(event.note)
+                    } catch (e: Exception) {
+                        Log.e(TAG, e.message.toString())
+                    }
+                }
             }
 
             is NotesEvents.EditNote -> {
@@ -170,6 +178,14 @@ class MainViewModel @Inject constructor(
             is NotesEvents.ShowCreateNoteBox -> {
                 _statesMain.update { newValue ->
                     newValue.copy(showCreateNoteBox = !statesMain.value.showCreateNoteBox)
+                }
+            }
+
+            is NotesEvents.GenerateNotes -> {
+                viewModelScope.launch {
+                    repeat(10) {
+                        notesUseCase.addNote(Note(title = "note$it", text = "generated note"))
+                    }
                 }
             }
         }

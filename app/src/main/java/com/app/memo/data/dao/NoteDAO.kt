@@ -1,6 +1,7 @@
 package com.app.memo.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,5 +19,8 @@ interface NoteDAO {
 
     @Query("SELECT * FROM Note ORDER BY id DESC LIMIT 1")
     fun getLastNote(): Int
+
+    @Delete
+    fun deleteNote(note: Note)
 
 }

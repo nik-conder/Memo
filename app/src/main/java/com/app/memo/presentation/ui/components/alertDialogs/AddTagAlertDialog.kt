@@ -1,6 +1,7 @@
 package com.app.memo.presentation.ui.components.alertDialogs
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,7 +37,6 @@ fun AddTagAlertDialog(
 ) {
     var addTagText by remember { mutableStateOf(TextFieldValue("")) }
     val addTagTextMaxChar = ConfigurationApp.Limits.TAG_NUMBER_CHARACTERS_TEXT
-    val showKeyboard = remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     var selectedColor by remember { mutableStateOf(0L) }
@@ -103,7 +103,7 @@ fun AddTagAlertDialog(
                                 keyboardOptions = KeyboardOptions.Default
                             )
 
-                            LaunchedEffect(openDialogState) {
+                            LaunchedEffect(true) {
                                 focusRequester.requestFocus()
                                 keyboard?.show()
                             }
@@ -114,11 +114,11 @@ fun AddTagAlertDialog(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Row {
-                        Column() {
+                        Column {
                             Row(modifier = Modifier.padding(start = 5.dp, bottom = 5.dp)) {
                                 Text(
                                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                                    text = "Выберите цвет: $selectedColor",
+                                    text = "Выберите цвет:",
                                 )
                             }
                             LazyRow(
@@ -135,12 +135,13 @@ fun AddTagAlertDialog(
                                                 ),
                                                 shape = RoundedCornerShape(20.dp)
                                             )
-                                            .size(32.dp)
+                                            .size(if (selectedColor > 0) 36.dp else 32.dp)
                                             .background(
                                                 color = Color(it),
                                                 shape = RoundedCornerShape(20.dp)
                                             )
                                             .clickable { selectedColor = it }
+                                            .animateContentSize()
                                     )
                                 }
                             }
@@ -165,7 +166,7 @@ fun AddTagAlertDialog(
                                 )
                                 addTagText = TextFieldValue("")
                             },
-                            enabled = if (addTagText.text.isNotEmpty()) true else false
+                            enabled = addTagText.text.isNotEmpty()
                         ) {
                             Text("Add tag")
                         }
