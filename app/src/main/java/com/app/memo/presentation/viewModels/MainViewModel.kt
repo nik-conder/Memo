@@ -15,6 +15,7 @@ import com.app.memo.domain.useCase.TagsUseCase
 import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.events.TagsEvents
 import com.app.memo.presentation.states.MainStates
+import com.app.memo.presentation.states.PagingNotesStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,21 +33,23 @@ class MainViewModel @Inject constructor(
     private val _statesMain = MutableStateFlow(MainStates())
     val statesMain: StateFlow<MainStates> = _statesMain
 
+    private val _statesNotesPaging = MutableStateFlow(PagingNotesStates())
+    val statesNotesPaging = _statesNotesPaging
+
     init {
         viewModelScope.launch {
             loadTags()
         }
     }
 
-    fun pagingNotes(): Flow<PagingData<Note>> {
-        return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, maxSize = 60),
-            pagingSourceFactory = {
-                println("-----------------------------")
-                notesUseCase.getAllNotes()
-            }
-        ).flow.cachedIn(viewModelScope)
-    }
+    val pagingNotes: Flow<PagingData<Note>> = Pager(
+        config = PagingConfig(
+            pageSize = statesNotesPaging.value.pageSize,
+        ),
+        pagingSourceFactory = {
+            notesUseCase.getAllNotes()
+        }
+    ).flow.cachedIn(viewModelScope)
 
     //val pagingSource = notesUseCase.getAllNotes()
 
@@ -153,15 +156,6 @@ class MainViewModel @Inject constructor(
 
             is NotesEvents.EditNote -> {
 
-            }
-
-            is NotesEvents.RefreshListNotes -> {
-                try {
-                    pagingNotes()
-                } catch (e: Exception) {
-                    Log.e("notes", e.message.toString())
-                    Toast.makeText(context, "Ошибка!", Toast.LENGTH_SHORT).show()
-                }
             }
 
             is NotesEvents.ShowCreateNoteBox -> {

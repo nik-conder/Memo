@@ -66,7 +66,7 @@ fun NotesBox(
                 println("append " + notesList.loadState.mediator?.append)
                 println("prepend " + notesList.loadState.mediator?.prepend)
             }) {
-                HomePageHeader(title = "Заметки")
+                HomePageHeader(title = "Заметки ${notesList.itemCount}")
             }
             Column(
                 modifier = Modifier
@@ -104,7 +104,6 @@ fun NotesBox(
                     }
                     is LoadState.Loading -> {
                         println("refresh Loading")
-                        notesList.refresh()
                     }
                     is LoadState.NotLoading -> {
                         println("refresh NotLoading")
@@ -112,59 +111,57 @@ fun NotesBox(
                 }
 
                 if (notesList.itemCount > 0) {
-                    items(items = notesList.itemSnapshotList, key = { it?.id ?: 0 }) { value ->
+                    items(items = notesList.itemSnapshotList.items, key = { it.id }) { item ->
+
                         var dismissState = rememberDismissState()
 
-                        if (value != null) {
-
-                            if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                                dismissState = DismissState(DismissValue.Default)
-                                onEventsNotes.invoke(NotesEvents.DeleteNote(value))
-                                notesList.refresh()
-                                println("DismissDirection.EndToStart")
-                            } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-                                println("DismissDirection.StartToEnd")
-                            }
-
-                            SwipeToDismiss(
-                                state = dismissState,
-                                background = {
-                                    val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-                                    val color by animateColorAsState(
-                                        when (dismissState.targetValue) {
-                                            DismissValue.Default -> Color.LightGray
-                                            DismissValue.DismissedToEnd -> Color.Green
-                                            DismissValue.DismissedToStart -> Color.Red
-                                        }
-                                    )
-                                    val alignment = when (direction) {
-                                        DismissDirection.StartToEnd -> Alignment.CenterStart
-                                        DismissDirection.EndToStart -> Alignment.CenterEnd
-                                    }
-                                    val icon = when (direction) {
-                                        DismissDirection.StartToEnd -> Icons.Default.Done
-                                        DismissDirection.EndToStart -> Icons.Default.Delete
-                                    }
-                                    val scale by animateFloatAsState(
-                                        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-                                    )
-                                    Box(
-                                        Modifier
-                                            .fillMaxSize()
-                                            .background(color, RoundedCornerShape(10.dp))
-                                            .padding(10.dp),
-                                        contentAlignment = alignment
-                                    ) {
-                                        Icon(
-                                            icon,
-                                            contentDescription = "Localized description",
-                                        )
-                                    }
-                                },
-                                dismissContent = {
-                                    NoteBox(note = value)
-                                })
+                        if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                            dismissState = DismissState(DismissValue.Default)
+                            onEventsNotes.invoke(NotesEvents.DeleteNote(item))
+                            notesList.refresh()
+                            println("DismissDirection.EndToStart")
+                        } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
+                            println("DismissDirection.StartToEnd")
                         }
+
+                        SwipeToDismiss(
+                            state = dismissState,
+                            background = {
+                                val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+                                val color by animateColorAsState(
+                                    when (dismissState.targetValue) {
+                                        DismissValue.Default -> Color.LightGray
+                                        DismissValue.DismissedToEnd -> Color.Green
+                                        DismissValue.DismissedToStart -> Color.Red
+                                    }
+                                )
+                                val alignment = when (direction) {
+                                    DismissDirection.StartToEnd -> Alignment.CenterStart
+                                    DismissDirection.EndToStart -> Alignment.CenterEnd
+                                }
+                                val icon = when (direction) {
+                                    DismissDirection.StartToEnd -> Icons.Default.Done
+                                    DismissDirection.EndToStart -> Icons.Default.Delete
+                                }
+                                val scale by animateFloatAsState(
+                                    if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+                                )
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(color, RoundedCornerShape(10.dp))
+                                        .padding(10.dp),
+                                    contentAlignment = alignment
+                                ) {
+                                    Icon(
+                                        icon,
+                                        contentDescription = "Localized description",
+                                    )
+                                }
+                            },
+                            dismissContent = {
+                                NoteBox(note = item)
+                            })
                     }
                 } else {
                     item {
@@ -230,7 +227,8 @@ fun NoteBox(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = note.title,
+                            text = "#${note.id} note.title",
+                            fontSize = 18.sp,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,

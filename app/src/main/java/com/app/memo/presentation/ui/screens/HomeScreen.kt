@@ -35,7 +35,8 @@ fun HomeScreenPage(
     val statesMain = viewModel.statesMain.collectAsState()
     val tagsList = statesMain.value.tagsList
     //val notesList = viewModel.pagingNotes.collectAsLazyPagingItems()
-    val notesList = viewModel.pagingNotes().collectAsLazyPagingItems()
+    val notesList = viewModel.pagingNotes.collectAsLazyPagingItems()
+
     val showCreateNoteBox = statesMain.value.showCreateNoteBox
 
     AddTagAlertDialog(
@@ -56,7 +57,7 @@ fun HomeScreenPage(
                              contentDescription = "Generate notes"
                          )
                      }
-                     IconButton(onClick = { notesList.refresh() }) {
+                     IconButton(onClick = {  }) {
                          Icon(
                              imageVector = Icons.Outlined.Refresh,
                              contentDescription = "Refresh notes"
@@ -133,9 +134,11 @@ fun HomeScreenPage(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageHeader(
     title: String,
+    count: Int? = null
 ) {
     Row(
         modifier = Modifier
@@ -145,5 +148,10 @@ fun HomePageHeader(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.W600
         )
+        if (count != null) {
+            Badge {
+                Text(text = "$count")
+            }
+        }
     }
 }
