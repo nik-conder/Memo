@@ -59,8 +59,6 @@ fun NotesBox(
         ) {
             Column(modifier = Modifier.clickable {
                 notesList.refresh()
-                //notesList.retry()
-                //notesList.peek(notesList.itemSnapshotList.lastIndex)
                 println("refresh " + notesList.loadState.mediator?.refresh)
                 println("append " + notesList.loadState.mediator?.append)
                 println("prepend " + notesList.loadState.mediator?.prepend)

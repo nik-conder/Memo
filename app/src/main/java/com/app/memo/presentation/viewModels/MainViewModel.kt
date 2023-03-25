@@ -127,13 +127,11 @@ class MainViewModel @Inject constructor(
 
     fun onEventsNotes(event: NotesEvents) {
         when (event) {
-
             is NotesEvents.AddNote -> {
                 event.note.let {
                     if (it.title != null || it.text != null) {
                         CoroutineScope(Dispatchers.Main).launch {
-                            val result = notesUseCase.addNote(it)
-                            println("result: $result")
+                            notesUseCase.addNote(it)
                         }
                         this.onEventsNotes(NotesEvents.ShowCreateNoteBox)
                     } else {
