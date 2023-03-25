@@ -34,12 +34,10 @@ class DataModule @Inject constructor() {
     fun providerNotesRepository(
         @ApplicationContext context: Context,
         noteDAO: NoteDAO,
-        notesPagingSource: NotesPagingSource
     ): NotesRepository {
         return NotesRepositoryImpl(
             context,
-            noteDAO,
-            notesPagingSource
+            noteDAO
         )
     }
 }

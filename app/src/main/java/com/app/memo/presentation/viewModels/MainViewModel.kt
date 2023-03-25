@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.app.memo.data.SystemMessages
 import com.app.memo.data.Validator
 import com.app.memo.data.enities.Note
@@ -45,9 +46,10 @@ class MainViewModel @Inject constructor(
     val pagingNotes: Flow<PagingData<Note>> = Pager(
         config = PagingConfig(
             pageSize = statesNotesPaging.value.pageSize,
+            prefetchDistance = statesNotesPaging.value.prefetchDistance
         ),
         pagingSourceFactory = {
-            notesUseCase.getAllNotes()
+            notesUseCase.getAllNotesSource()
         }
     ).flow.cachedIn(viewModelScope)
 
@@ -158,6 +160,12 @@ class MainViewModel @Inject constructor(
 
             }
 
+            is NotesEvents.UpdateInitKeyPaging -> {
+                _statesNotesPaging.update { newValue ->
+                    newValue.copy(initialLoadSize = event.key)
+                }
+            }
+
             is NotesEvents.ShowCreateNoteBox -> {
                 _statesMain.update { newValue ->
                     newValue.copy(showCreateNoteBox = !statesMain.value.showCreateNoteBox)
@@ -167,6 +175,7 @@ class MainViewModel @Inject constructor(
             is NotesEvents.GenerateNotes -> {
                 viewModelScope.launch {
                     repeat(10) {
+
                         notesUseCase.addNote(Note(title = "note$it", text = "generated note"))
                     }
                 }

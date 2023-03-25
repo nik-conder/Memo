@@ -13,15 +13,8 @@ interface NoteDAO {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNote(note: Note)
-
-    @Query("SELECT * FROM Note ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun getAllNotes(limit: Int, offset: Int): List<Note>
-
-    @Query("SELECT * FROM Note  WHERE id BETWEEN :offset AND :offset + :until")
-    fun getAllNotesTest(offset: Int, until: Int): List<Note>
-
-    @Query("SELECT * FROM Note WHERE id < :lastID ORDER BY id DESC LIMIT 30")
-    fun getAllNotesTestTwo(lastID: Int): List<Note>
+    @Query("SELECT * FROM Note WHERE id <= :lastID ORDER BY id DESC LIMIT :limit")
+    fun getAllNotes(lastID: Int, limit: Int): List<Note>
 
     @Query("SELECT * FROM Note ORDER BY id DESC LIMIT 1")
     fun getLastNote(): Int

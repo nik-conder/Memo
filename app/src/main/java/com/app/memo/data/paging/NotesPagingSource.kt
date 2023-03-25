@@ -17,24 +17,41 @@ class NotesPagingSource(
     private fun ensureValidKey(key: Int) = max(STARTING_KEY, key)
 
     override fun getRefreshKey(state: PagingState<Int, Note>): Int? {
-        val anchorPosition = state.anchorPosition ?: return null
-        val noteElement = state.closestItemToPosition(anchorPosition) ?: return null
-        return ensureValidKey(key = noteElement.id - (state.config.pageSize / 2))
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+        }
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Note> {
         return try {
             val nextPage = params.key ?: STARTING_KEY
-            var lastID: Int = 0
-            if (params.key == null) {
-                lastID = noteDAO.getLastNote()
+
+            val lastID = if (params.key == null || params.key == -1) {
+                getLastNote()
             } else {
-                lastID = nextPage
+                if (params.key != null && params.key != 0 && params.key != -1) {
+                    params.key
+                } else {
+                    null
+                }
             }
 
-            val response = noteDAO.getAllNotesTestTwo(lastID = lastID)
+            var response = emptyList<Note>()
 
-            val nextKey = if (response.isEmpty()) null else response.last().id - 1
+            if (lastID != null && lastID != -1) {
+                if (lastID > 0 && params.key != 0) {
+                    response = noteDAO.getAllNotes(limit = params.loadSize, lastID = lastID).map { it }
+                }
+            }
+
+            val nextKey = if (response.isNotEmpty()) {
+                if (nextPage > 0 ) {
+                    response.last().id - 1
+                } else {
+                    null
+                }
+            } else null
 
             LoadResult.Page(
                 data = response,
@@ -47,4 +64,7 @@ class NotesPagingSource(
         }
     }
 
+    private fun getLastNote(): Int {
+        return noteDAO.getLastNote()
+    }
 }

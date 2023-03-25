@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,8 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.items
 import com.app.memo.ConfigurationApp.Limits.NOTE_ATTACHED_TAGS
 import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_CHARACTERS_TEXT
 import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_CHARACTERS_TITLE
@@ -98,26 +97,12 @@ fun NotesBox(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                when (notesList.loadState.refresh) { //FIRST LOAD
-                    is LoadState.Error -> {
-                        println("refresh error")
-                    }
-                    is LoadState.Loading -> {
-                        println("refresh Loading")
-                    }
-                    is LoadState.NotLoading -> {
-                        println("refresh NotLoading")
-                    }
-                }
-
-                if (notesList.itemCount > 0) {
-                    items(items = notesList.itemSnapshotList.items, key = { it.id }) { item ->
-
-                        var dismissState = rememberDismissState()
-
+                items(items = notesList, key = { it.id }) { item ->
+                    var dismissState = rememberDismissState()
+                    item?.let {
                         if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                             dismissState = DismissState(DismissValue.Default)
-                            onEventsNotes.invoke(NotesEvents.DeleteNote(item))
+                            onEventsNotes.invoke(NotesEvents.DeleteNote(it))
                             notesList.refresh()
                             println("DismissDirection.EndToStart")
                         } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
@@ -143,9 +128,6 @@ fun NotesBox(
                                     DismissDirection.StartToEnd -> Icons.Default.Done
                                     DismissDirection.EndToStart -> Icons.Default.Delete
                                 }
-                                val scale by animateFloatAsState(
-                                    if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-                                )
                                 Box(
                                     Modifier
                                         .fillMaxSize()
@@ -160,35 +142,8 @@ fun NotesBox(
                                 }
                             },
                             dismissContent = {
-                                NoteBox(note = item)
+                                NoteBox(note = it)
                             })
-                    }
-                } else {
-                    item {
-                        Text(text = "No notes")
-                    }
-                }
-                when (notesList.loadState.append) {
-                    is LoadState.Error -> {
-                        println("append error")
-                    }
-                    is LoadState.Loading -> {
-                        println("append Loading")
-                    }
-                    is LoadState.NotLoading -> {
-                        println("append NotLoading")
-                    }
-                }
-
-                when (notesList.loadState.prepend) {
-                    is LoadState.Error -> {
-                        println("prepend error")
-                    }
-                    is LoadState.Loading -> {
-                        println("prepend Loading")
-                    }
-                    is LoadState.NotLoading -> {
-                        println("prepend NotLoading")
                     }
                 }
             }
