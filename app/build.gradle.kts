@@ -1,4 +1,4 @@
-val composeVersion = "1.3.3"
+val composeVersion = "1.4.0"
 
 plugins {
     id("com.android.application")
@@ -16,7 +16,6 @@ buildscript {
         classpath("de.mannodermaus.gradle.plugins:android-junit5:1.8.2.1")
     }
 }
-
 
 android {
     namespace = "com.app.memo"
@@ -123,22 +122,22 @@ dependencies {
     //androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // AppCompat
-    implementation("androidx.appcompat:appcompat:1.7.0-alpha01")
+    implementation("androidx.appcompat:appcompat:1.7.0-alpha02")
 
     // Compose
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha04")
-    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.compose.material3:material3:1.1.0-beta01")
+    implementation("androidx.activity:activity-compose:1.7.0")
     implementation("androidx.navigation:navigation-compose:2.5.3")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
 
     // Compose: Testing
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
     androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
 
     // Hilt
@@ -163,7 +162,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
 
     // Other
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.navigation:navigation-runtime-ktx:2.5.3")
     implementation("androidx.core:core-ktx:1.9.0")
 }

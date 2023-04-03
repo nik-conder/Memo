@@ -10,5 +10,6 @@ data class MainStates(
     val notesList: List<Note>?= null,
     val openAlertDialogAddTag: Boolean = false,
     val showCreateNoteBox: Boolean = false,
-    val addTagTextState: String = ""
+    val addTagTextState: String = "",
+    val openAlertDialogDeleteNote: Boolean = false
 )

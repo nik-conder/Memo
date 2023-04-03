@@ -2,7 +2,6 @@ package com.app.memo.presentation.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +36,7 @@ import com.app.memo.ConfigurationApp.Limits.NOTE_NUMBER_CHARACTERS_TITLE
 import com.app.memo.data.enities.Note
 import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.ui.screens.HomePageHeader
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +44,12 @@ fun NotesBox(
     showCreateNoteBox: Boolean,
     notesList: LazyPagingItems<Note>,
     maxHeight: Dp = 100.dp,
-    onEventsNotes: (NotesEvents) -> Unit
+    onEventsNotes: (NotesEvents) -> Unit,
+    snackBarHostState: SnackbarHostState
 ) {
     val listState = rememberLazyListState()
     val scroll = rememberScrollState()
+    val coroutinescope = rememberCoroutineScope()
 
     Column(modifier = Modifier
         .verticalScroll(scroll)
@@ -96,16 +98,27 @@ fun NotesBox(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(items = notesList, key = { it.id }) { item ->
-                    var dismissState = rememberDismissState()
-                    item?.let {
-                        if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                            dismissState = DismissState(DismissValue.Default)
-                            onEventsNotes.invoke(NotesEvents.DeleteNote(it))
-                            notesList.refresh()
-                            println("DismissDirection.EndToStart")
-                        } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-                            println("DismissDirection.StartToEnd")
-                        }
+                    if (item != null) {
+                        var dismissState = rememberDismissState(
+                            initialValue = DismissValue.Default,
+                            confirmValueChange = {
+                                if (it == DismissValue.DismissedToStart) {
+                                    coroutinescope.launch {
+                                        snackBarHostState.showSnackbar(
+                                            message = "Заметка будет удалена",
+                                            actionLabel = "Отмена (10 сек.)",
+                                            duration= SnackbarDuration.Long
+                                        )
+                                    }
+                                    //onEventsNotes.invoke(NotesEvents.OpenAlertDialogDeleteNote)
+                                    false
+                                } else if(it == DismissValue.DismissedToEnd) {
+                                    false
+                                } else {
+                                    false
+                                }
+                            }
+                        )
 
                         SwipeToDismiss(
                             state = dismissState,
@@ -140,7 +153,7 @@ fun NotesBox(
                                 }
                             },
                             dismissContent = {
-                                NoteBox(note = it)
+                                NoteBox(note = item)
                             })
                     }
                 }

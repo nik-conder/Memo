@@ -66,48 +66,45 @@ fun AddTagAlertDialog(
                 shape = MaterialTheme.shapes.large
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Column {
-                        Row {
-                            OutlinedTextField(
-                                minLines = 1,
-                                maxLines = 1,
-                                singleLine = true,
-                                label = { Text(text = "Название тега") },
-                                modifier = Modifier
-                                    .focusRequester(focusRequester)
-                                    .testTag("TagNameTextField"),
-                                value = addTagText,
-                                isError = addTagTextMaxChar - addTagText.text.length == 0,
-                                onValueChange = { newText ->
-                                    if (newText.text.length <= addTagTextMaxChar) addTagText =
-                                        newText
-                                },
-                                trailingIcon = {
-                                    AnimatedVisibility(visible = addTagText.text.isNotEmpty()) {
-                                        Icon(
-                                            modifier = Modifier.clickable {
-                                                addTagText = TextFieldValue("")
-                                            },
-                                            imageVector = Icons.Rounded.Clear,
-                                            contentDescription = "Clear"
-                                        )
-                                    }
-                                },
-                                supportingText = {
-                                    Text(
-                                        text = "Осталось: ${addTagTextMaxChar - addTagText.text.length} символов",
-                                        color = if ((addTagTextMaxChar - addTagText.text.length) <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onTertiary,
-                                        fontSize = 12.sp
+                    Row {
+                        OutlinedTextField(
+                            minLines = 1,
+                            maxLines = 1,
+                            singleLine = true,
+                            label = { Text(text = "Название тега") },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .testTag("TagNameTextField"),
+                            value = addTagText,
+                            isError = addTagTextMaxChar - addTagText.text.length == 0,
+                            onValueChange = { newText ->
+                                if (newText.text.length <= addTagTextMaxChar) addTagText =
+                                    newText
+                            },
+                            trailingIcon = {
+                                AnimatedVisibility(visible = addTagText.text.isNotEmpty()) {
+                                    Icon(
+                                        modifier = Modifier.clickable {
+                                            addTagText = TextFieldValue("")
+                                        },
+                                        imageVector = Icons.Rounded.Clear,
+                                        contentDescription = "Clear"
                                     )
-                                },
-                                keyboardOptions = KeyboardOptions.Default
-                            )
+                                }
+                            },
+                            supportingText = {
+                                Text(
+                                    text = "Осталось: ${addTagTextMaxChar - addTagText.text.length} символов",
+                                    color = if ((addTagTextMaxChar - addTagText.text.length) <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onTertiary,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions.Default
+                        )
 
-                            LaunchedEffect(true) {
-                                focusRequester.requestFocus()
-                                keyboard?.show()
-                            }
-
+                        LaunchedEffect(true) {
+                            focusRequester.requestFocus()
+                            keyboard?.show()
                         }
                     }
 

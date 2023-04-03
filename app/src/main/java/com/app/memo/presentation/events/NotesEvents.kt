@@ -7,6 +7,7 @@ sealed class NotesEvents() {
     class DeleteNote(val note: Note): NotesEvents()
     class EditNote(): NotesEvents()
     object ShowCreateNoteBox: NotesEvents()
+    object OpenAlertDialogDeleteNote: NotesEvents()
     class UpdateInitKeyPaging(val key: Int): NotesEvents()
 
     object GenerateNotes: NotesEvents()

@@ -16,6 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.app.memo.presentation.events.NotesEvents
 import com.app.memo.presentation.ui.components.*
 import com.app.memo.presentation.ui.components.alertDialogs.AddTagAlertDialog
+import com.app.memo.presentation.ui.components.alertDialogs.NoteDeleteConfirmAlertDialog
 import com.app.memo.presentation.viewModels.MainViewModel
 
 @Composable
@@ -39,11 +40,16 @@ fun HomeScreenPage(
 
     val showCreateNoteBox = statesMain.value.showCreateNoteBox
 
+    val snackBarHostState = SnackbarHostState()
+
     AddTagAlertDialog(
         openDialogState = statesMain.value.openAlertDialogAddTag,
         onEventsTags = onEventsTags
     )
-
+    NoteDeleteConfirmAlertDialog(
+        openDialogState = statesMain.value.openAlertDialogDeleteNote,
+        onEventsNotes = onEventsNotes
+    )
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,7 +81,6 @@ fun HomeScreenPage(
         ) {
 
             val (boxGreeting, boxTags, boxNotes) = createRefs()
-
             BoxWithConstraints(
                 modifier = Modifier
                     .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -126,13 +131,14 @@ fun HomeScreenPage(
                     showCreateNoteBox = showCreateNoteBox,
                     notesList = notesList,
                     maxHeight = maxHeight,
-                    onEventsNotes = onEventsNotes
+                    onEventsNotes = onEventsNotes,
+                    snackBarHostState = snackBarHostState
                 )
             }
         }
     }
+    SnackBarHost(snackbarHostState = snackBarHostState)
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

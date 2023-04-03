@@ -20,6 +20,7 @@ import com.app.memo.presentation.states.PagingNotesStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -147,7 +148,7 @@ class MainViewModel @Inject constructor(
             is NotesEvents.DeleteNote -> {
                 viewModelScope.launch {
                     try {
-                        notesUseCase.deleteNote(event.note)
+                        //notesUseCase.deleteNote(event.note)
                     } catch (e: Exception) {
                         Log.e(TAG, e.message.toString())
                     }
@@ -156,6 +157,14 @@ class MainViewModel @Inject constructor(
 
             is NotesEvents.EditNote -> {
 
+            }
+
+            is NotesEvents.OpenAlertDialogDeleteNote -> {
+                viewModelScope.launch {
+                    _statesMain.update { newValue ->
+                        newValue.copy(openAlertDialogDeleteNote = !statesMain.value.openAlertDialogDeleteNote)
+                    }
+                }
             }
 
             is NotesEvents.UpdateInitKeyPaging -> {
